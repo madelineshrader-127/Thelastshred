@@ -5,21 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Last Shred</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;1,8..60,300&display=swap" rel="stylesheet">
-<script src="https://npmcdn.com/parse/dist/parse.min.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root { --sand:#e8e4de; --dark:#2d3130; --salmon:#d98373; --white:#ffffff; --text-dark:#222; --text-muted:#666; --border:#ddd; }
   body { font-family:'Source Serif 4',Georgia,serif; font-weight:300; color:var(--text-dark); background:var(--white); }
 
-  /* NAV */
   nav { display:flex; justify-content:space-between; align-items:center; padding:22px 48px; }
-  .nav-logo { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:400; color:inherit; text-decoration:none; cursor:pointer; }
+  .nav-logo { font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:400; color:inherit; cursor:pointer; }
   .nav-links { display:flex; align-items:center; gap:28px; list-style:none; }
   .nav-links a { font-size:0.88rem; font-weight:300; color:inherit; text-decoration:none; cursor:pointer; }
   .nav-links a.active { text-decoration:underline; text-underline-offset:4px; }
   .nav-links .linkedin { font-family:sans-serif; font-weight:700; }
 
-  /* PAGES */
   .page { display:none; min-height:100vh; flex-direction:column; }
   .page.active { display:flex; }
 
@@ -29,7 +26,6 @@
   .hero { display:grid; grid-template-columns:1fr 1fr; align-items:center; gap:48px; padding:60px 48px 100px; flex:1; }
   .hero h1 { font-family:'Playfair Display',serif; font-size:clamp(2.2rem,3.5vw,3.2rem); font-weight:400; color:var(--white); line-height:1.15; margin-bottom:24px; }
   .hero p { font-size:0.88rem; color:#bbb; line-height:1.75; max-width:340px; margin-bottom:36px; }
-  .hero-img { width:100%; height:440px; object-fit:cover; display:block; }
   .hero-placeholder { width:100%; height:440px; background:#3a3f3e; display:flex; align-items:center; justify-content:center; color:#666; font-size:0.8rem; }
 
   /* POSTS */
@@ -88,7 +84,6 @@
   .success-banner { display:none; margin-top:16px; background:#d4edda; color:#2e7d32; padding:12px 18px; border-radius:8px; font-size:0.85rem; }
   .error-banner { display:none; margin-top:16px; background:#f8d7da; color:#721c24; padding:12px 18px; border-radius:8px; font-size:0.85rem; }
 
-  /* SHARED */
   .btn-salmon { display:inline-block; background:var(--salmon); color:var(--white); padding:14px 28px; border-radius:40px; font-size:0.85rem; font-family:inherit; border:none; cursor:pointer; letter-spacing:0.02em; transition:opacity 0.2s; }
   .btn-salmon:hover { opacity:0.88; }
   .sand-footer { background:var(--sand); height:48px; margin-top:auto; }
@@ -188,7 +183,6 @@
   <div class="admin-wrap">
     <h1>New Post</h1>
     <p class="admin-sub">Fill in the details and hit Publish. Access this page anytime by clicking the logo 5 times quickly.</p>
-
     <div class="admin-field">
       <label class="admin-label">Title</label>
       <input class="admin-input" id="new-title" type="text" placeholder="Article headline..." />
@@ -205,7 +199,6 @@
       <label class="admin-label">Image URL <span style="text-transform:none;font-size:0.72rem;color:#999;">(optional — paste a link to your image)</span></label>
       <input class="admin-input" id="new-img" type="text" placeholder="https://..." />
     </div>
-
     <button class="publish-btn" id="publish-btn" onclick="publishPost()">Publish Post</button>
     <div class="success-banner" id="success-banner">✓ Published! <span style="color:var(--salmon);cursor:pointer;text-decoration:underline;" onclick="show('posts')">View posts →</span></div>
     <div class="error-banner" id="error-banner"></div>
@@ -213,9 +206,13 @@
 </div>
 
 <script>
-  // ── Init Parse / Back4App ──
-  Parse.initialize("gRGOLqEvFnBOXCRAApz8kNY6e2yWHgfFJPJP9t9P", "GJ4oDZ06ekYeQcE9UaVZHD6r4JzbFoaywqRUKDOi");
-  Parse.serverURL = "https://parseapi.back4app.com/";
+  const SUPABASE_URL  = 'https://xukpqydkhyfhhtomvtqr.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1a3BxeWRraHlmaGh0b212dHFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczNDcyMTYsImV4cCI6MjA5MjkyMzIxNn0.MkzVY6Euu-a1vSZsKD9T1HZBNL6mpJJNEYpK-HCmnrY';
+  const HEADERS = {
+    'apikey': SUPABASE_ANON,
+    'Authorization': `Bearer ${SUPABASE_ANON}`,
+    'Content-Type': 'application/json'
+  };
 
   // ── Navigation ──
   let clicks = 0, clickTimer = null;
@@ -237,37 +234,31 @@
     });
   });
 
-  // ── Load posts from Back4App ──
+  // ── Load posts ──
   async function loadPosts() {
     const list = document.getElementById('posts-list');
     list.innerHTML = '<p class="loading">Loading posts...</p>';
     try {
-      const Post = Parse.Object.extend('Post');
-      const query = new Parse.Query(Post);
-      query.descending('createdAt');
-      const results = await query.find();
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/posts?select=*&order=id.desc`, { headers: HEADERS });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.message || res.statusText); }
+      const posts = await res.json();
 
-      if (!results.length) {
+      if (!posts.length) {
         list.innerHTML = '<p class="no-posts">No posts yet. <span style="color:var(--salmon);cursor:pointer;text-decoration:underline;" onclick="show(\'admin\')">Add your first post →</span></p>';
         return;
       }
 
-      list.innerHTML = results.map(p => {
-        const id = p.id;
-        const img = p.get('img');
-        const date = p.get('date') || '';
-        const title = p.get('title') || '';
-        const excerpt = p.get('excerpt') || '';
-        return `<div class="post-card" onclick="openArticle('${id}')">
-          ${img ? `<img class="post-thumb" src="${img}" alt="${title}" />` : `<div class="post-thumb-placeholder">No image</div>`}
+      list.innerHTML = posts.map(p => `
+        <div class="post-card" onclick="openArticle(${p.id})">
+          ${p.img ? `<img class="post-thumb" src="${p.img}" alt="${p.title}" />` : `<div class="post-thumb-placeholder">No image</div>`}
           <div>
-            <div class="post-date">${date}</div>
-            <h2 class="post-title">${title}</h2>
-            ${excerpt ? `<p class="post-excerpt">${excerpt}</p>` : ''}
-            <button class="read-more-btn" onclick="event.stopPropagation();openArticle('${id}')">Read More</button>
+            <div class="post-date">${p.date || ''}</div>
+            <h2 class="post-title">${p.title || ''}</h2>
+            ${p.excerpt ? `<p class="post-excerpt">${p.excerpt}</p>` : ''}
+            <button class="read-more-btn" onclick="event.stopPropagation();openArticle(${p.id})">Read More</button>
           </div>
-        </div>`;
-      }).join('');
+        </div>
+      `).join('');
     } catch (err) {
       list.innerHTML = `<p class="no-posts" style="color:#c00;">Error loading posts: ${err.message}</p>`;
     }
@@ -275,68 +266,63 @@
 
   // ── Open article ──
   async function openArticle(id) {
-    const Post = Parse.Object.extend('Post');
-    const query = new Parse.Query(Post);
     try {
-      const p = await query.get(id);
-      document.getElementById('art-date').textContent = p.get('date') || '';
-      document.getElementById('art-title').textContent = p.get('title') || '';
-      document.getElementById('art-body').textContent = p.get('body') || '';
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/posts?id=eq.${id}&select=*`, { headers: HEADERS });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.message || res.statusText); }
+      const rows = await res.json();
+      const p = rows[0];
+      document.getElementById('art-date').textContent = p.date || '';
+      document.getElementById('art-title').textContent = p.title || '';
+      document.getElementById('art-body').textContent = p.body || '';
       const img = document.getElementById('art-img');
-      const imgUrl = p.get('img');
-      if (imgUrl) { img.src = imgUrl; img.style.display = 'block'; } else { img.style.display = 'none'; }
+      if (p.img) { img.src = p.img; img.style.display = 'block'; } else { img.style.display = 'none'; }
       show('article');
     } catch (err) {
       alert('Could not load article: ' + err.message);
     }
   }
 
-  // ── Publish to Back4App ──
+  // ── Publish ──
   async function publishPost() {
     const title = document.getElementById('new-title').value.trim();
-    const body = document.getElementById('new-body').value.trim();
+    const body  = document.getElementById('new-body').value.trim();
     if (!title || !body) { alert('Title and article body are required.'); return; }
 
     const btn = document.getElementById('publish-btn');
-    btn.disabled = true;
-    btn.textContent = 'Publishing...';
+    btn.disabled = true; btn.textContent = 'Publishing...';
     document.getElementById('error-banner').style.display = 'none';
 
     try {
-      const Post = Parse.Object.extend('Post');
-      const post = new Post();
-      const now = new Date();
+      const now  = new Date();
       const date = `${now.getMonth()+1}/${now.getDate()}/${String(now.getFullYear()).slice(2)}`;
+      const payload = {
+        title,
+        excerpt: document.getElementById('new-excerpt').value.trim() || null,
+        body,
+        date,
+        img: document.getElementById('new-img').value.trim() || null
+      };
 
-      post.set('title', title);
-      post.set('excerpt', document.getElementById('new-excerpt').value.trim());
-      post.set('body', body);
-      post.set('date', date);
-      post.set('img', document.getElementById('new-img').value.trim() || null);
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/posts`, {
+        method: 'POST',
+        headers: { ...HEADERS, 'Prefer': 'return=minimal' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.message || res.statusText); }
 
-      // Set public read access
-      const acl = new Parse.ACL();
-      acl.setPublicReadAccess(true);
-      acl.setPublicWriteAccess(true);
-      post.setACL(acl);
-
-      await post.save();
-
-      // Reset form
       ['new-title','new-excerpt','new-body','new-img'].forEach(id => document.getElementById(id).value = '');
-      document.getElementById('success-banner').style.display = 'block';
-      setTimeout(() => document.getElementById('success-banner').style.display = 'none', 5000);
+      const banner = document.getElementById('success-banner');
+      banner.style.display = 'block';
+      setTimeout(() => banner.style.display = 'none', 5000);
     } catch (err) {
       const eb = document.getElementById('error-banner');
       eb.textContent = 'Error: ' + err.message;
       eb.style.display = 'block';
     } finally {
-      btn.disabled = false;
-      btn.textContent = 'Publish Post';
+      btn.disabled = false; btn.textContent = 'Publish Post';
     }
   }
 
-  // ── Init ──
   loadPosts();
 </script>
 </body>
