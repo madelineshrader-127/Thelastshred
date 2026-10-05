@@ -20,7 +20,6 @@
   .page { display:none; min-height:100vh; flex-direction:column; }
   .page.active { display:flex; }
 
-  /* HOME */
   #page-home { background:var(--dark); }
   #page-home nav { background:var(--dark); color:var(--white); }
   .hero { display:grid; grid-template-columns:1fr 1fr; align-items:center; gap:48px; padding:60px 48px 100px; flex:1; }
@@ -29,7 +28,6 @@
   .hero-placeholder { width:100%; height:440px; background:#3a3f3e; display:flex; align-items:center; justify-content:center; color:#666; font-size:0.8rem; }
   .hero-img { width:100%; height:440px; object-fit:cover; object-position:center center; display:block; }
 
-  /* POSTS */
   #page-posts nav { background:var(--white); color:var(--text-dark); border-bottom:1px solid var(--border); }
   .posts-list { padding:40px 48px 80px; }
   .post-card { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:center; padding:44px 0; border-bottom:1px solid #eee; cursor:pointer; }
@@ -44,7 +42,6 @@
   .no-posts { padding:80px 0; color:var(--text-muted); font-size:0.95rem; }
   .loading { padding:80px 0; color:var(--text-muted); font-size:0.88rem; }
 
-  /* ARTICLE */
   #page-article nav { background:var(--white); color:var(--text-dark); border-bottom:1px solid var(--border); }
   .article-wrap { max-width:760px; margin:0 auto; padding:48px 48px 100px; width:100%; }
   .back-btn { font-size:0.82rem; color:var(--text-muted); background:none; border:none; cursor:pointer; font-family:inherit; margin-bottom:32px; display:inline-flex; align-items:center; gap:6px; }
@@ -54,7 +51,6 @@
   .article-hero-img { width:100%; max-height:420px; object-fit:cover; margin-bottom:40px; display:block; }
   .article-content { font-size:0.95rem; line-height:1.85; color:#333; white-space:pre-wrap; }
 
-  /* CONTACT */
   #page-contact { background:var(--sand); }
   #page-contact nav { background:var(--sand); color:var(--text-dark); }
   .contact-wrap { padding:56px 48px 100px; max-width:580px; }
@@ -67,7 +63,6 @@
   .form-textarea { border-radius:14px; height:130px; resize:none; }
   .form-input:focus, .form-textarea:focus { border-color:var(--salmon); }
 
-  /* ADMIN */
   #page-admin { background:var(--sand); }
   #page-admin nav { background:var(--sand); color:var(--text-dark); }
   .admin-wrap { padding:48px; max-width:760px; }
@@ -100,7 +95,6 @@
   .delete-btn:hover { background:#fee2e2; color:#c00; border-color:#fca5a5; }
   .no-admin-posts { font-size:0.85rem; color:var(--text-muted); padding:16px 0; }
 
-  /* CROP TOOL */
   .crop-wrap { position:relative; width:100%; height:260px; background:#ccc; border-radius:10px; overflow:hidden; cursor:crosshair; user-select:none; }
   .crop-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 50%; pointer-events:none; display:none; }
   .crop-empty { width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:#888; font-size:0.85rem; }
@@ -129,7 +123,7 @@
       <p>Follow for coverage on the politics of the human- the way the events of the world affect the people living in it, and what it means for us moving forward.</p>
       <button class="btn-salmon" onclick="show('posts')">Explore Coverage</button>
     </div>
-    <img class="hero-img" id="hero-img" src="https://raw.githubusercontent.com/madelineshrader-127/Thelastshred/refs/heads/main/updatedhero.jpg" alt="hero" />
+    <img class="hero-img" id="hero-img" src="https://raw.githubusercontent.com/madelineshrader-127/Thelastshred/refs/heads/main/hero.jpg" alt="hero" />
   </div>
 </div>
 
@@ -192,7 +186,7 @@
   </div>
 </div>
 
-<!-- ADMIN (click logo 5x to access) -->
+<!-- ADMIN -->
 <div id="page-admin" class="page">
   <nav>
     <span class="nav-logo" onclick="show('home')">The Last Shred</span>
@@ -203,8 +197,6 @@
     </ul>
   </nav>
   <div class="admin-wrap">
-
-    <!-- NEW / EDIT POST -->
     <h1 id="admin-form-title">New Post</h1>
     <p class="admin-sub">Access this page anytime by clicking the logo 5 times quickly.</p>
     <div class="admin-field">
@@ -230,7 +222,6 @@
     <div class="success-banner" id="success-banner"></div>
     <div class="error-banner" id="error-banner"></div>
 
-    <!-- COVER PHOTO -->
     <hr class="admin-divider" />
     <h2 class="admin-posts-title">Cover Photo</h2>
     <div class="admin-field">
@@ -251,11 +242,9 @@
     </div>
     <div class="success-banner" id="cover-success">✓ Cover photo updated! Go to the home page to see it.</div>
 
-    <!-- MANAGE POSTS -->
     <hr class="admin-divider" />
     <h2 class="admin-posts-title">Manage Posts</h2>
     <div id="admin-posts-list"><p class="no-admin-posts">Loading...</p></div>
-
   </div>
 </div>
 
@@ -271,11 +260,9 @@
   let clicks = 0, clickTimer = null;
   let editingId = null;
 
-  // Cover photo state — load from localStorage
   let coverUrl = localStorage.getItem('cover_url') || 'https://raw.githubusercontent.com/madelineshrader-127/Thelastshred/refs/heads/main/hero.jpg';
   let coverPos = JSON.parse(localStorage.getItem('cover_pos') || '{"x":50,"y":50}');
 
-  // Apply saved cover on load
   function applyCover() {
     const img = document.getElementById('hero-img');
     img.src = coverUrl;
@@ -283,7 +270,6 @@
   }
   applyCover();
 
-  // ── Navigation ──
   function show(page) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page-' + page).classList.add('active');
@@ -292,7 +278,6 @@
     window.scrollTo(0, 0);
   }
 
-  // Secret admin: click logo 5x fast
   document.querySelectorAll('.nav-logo').forEach(el => {
     el.addEventListener('click', () => {
       clicks++;
@@ -302,10 +287,8 @@
     });
   });
 
-  // ── Cover photo admin ──
   function initCoverAdmin() {
-    const urlInput = document.getElementById('cover-url');
-    urlInput.value = coverUrl;
+    document.getElementById('cover-url').value = coverUrl;
     showCoverPreview(coverUrl, coverPos.x, coverPos.y);
   }
 
@@ -327,7 +310,6 @@
     dot.style.top  = y + '%';
   }
 
-  // Drag/click on crop preview
   const cropWrap = document.getElementById('crop-wrap');
   let isDragging = false;
 
@@ -362,7 +344,6 @@
     setTimeout(() => banner.style.display = 'none', 4000);
   }
 
-  // ── Load posts (public) ──
   async function loadPosts() {
     const list = document.getElementById('posts-list');
     list.innerHTML = '<p class="loading">Loading posts...</p>';
@@ -370,10 +351,7 @@
       const res = await fetch(`${SUPABASE_URL}/rest/v1/posts?select=*&order=id.desc`, { headers: HEADERS });
       if (!res.ok) { const e = await res.json(); throw new Error(e.message || res.statusText); }
       const posts = await res.json();
-      if (!posts.length) {
-        list.innerHTML = '<p class="no-posts">No posts yet.</p>';
-        return;
-      }
+      if (!posts.length) { list.innerHTML = '<p class="no-posts">No posts yet.</p>'; return; }
       list.innerHTML = posts.map(p => `
         <div class="post-card" onclick="openArticle(${p.id})">
           ${p.img ? `<img class="post-thumb" src="${p.img}" alt="${p.title}" />` : `<div class="post-thumb-placeholder">No image</div>`}
@@ -390,7 +368,6 @@
     }
   }
 
-  // ── Load posts in admin ──
   async function loadAdminPosts() {
     const list = document.getElementById('admin-posts-list');
     list.innerHTML = '<p class="no-admin-posts">Loading...</p>';
@@ -416,7 +393,6 @@
     }
   }
 
-  // ── Open article ──
   async function openArticle(id) {
     try {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/posts?id=eq.${id}&select=*`, { headers: HEADERS });
@@ -432,7 +408,6 @@
     } catch (err) { alert('Could not load article: ' + err.message); }
   }
 
-  // ── Start editing ──
   async function startEdit(id) {
     try {
       const res = await fetch(`${SUPABASE_URL}/rest/v1/posts?id=eq.${id}&select=*`, { headers: HEADERS });
@@ -450,7 +425,6 @@
     } catch (err) { alert('Could not load post for editing: ' + err.message); }
   }
 
-  // ── Reset form ──
   function resetForm() {
     editingId = null;
     ['new-title','new-excerpt','new-body','new-img'].forEach(id => document.getElementById(id).value = '');
@@ -461,7 +435,6 @@
     document.getElementById('error-banner').style.display = 'none';
   }
 
-  // ── Publish / save post ──
   async function publishPost() {
     const title = document.getElementById('new-title').value.trim();
     const body  = document.getElementById('new-body').value.trim();
@@ -503,7 +476,6 @@
     }
   }
 
-  // ── Delete post ──
   async function deletePost(id, title) {
     if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
     try {
